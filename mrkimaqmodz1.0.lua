@@ -1,84 +1,4 @@
--- MrKimaq Mod Menu v1.10 (Full: Safe Speed + Smooth Fly + WallHack + Invisible)
-
--- Security Frame
-local securityFrame = Instance.new("Frame", contentFrame)
-securityFrame.Size = UDim2.new(1,0,1,0)
-securityFrame.BackgroundTransparency = 1
-
--- Password input
-local passwordLabel = Instance.new("TextLabel", securityFrame)
-passwordLabel.Size = UDim2.new(1,0,0,30)
-passwordLabel.Position = UDim2.new(0,0,0,10)
-passwordLabel.BackgroundTransparency = 1
-passwordLabel.Text = "Enter Password:"
-passwordLabel.TextColor3 = Color3.fromRGB(180,180,180)
-passwordLabel.Font = Enum.Font.FredokaOne
-passwordLabel.TextSize = 16
-
-local passwordBox = Instance.new("TextBox", securityFrame)
-passwordBox.Size = UDim2.new(0,200,0,35)
-passwordBox.Position = UDim2.new(0,10,0,50)
-passwordBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
-passwordBox.TextColor3 = Color3.fromRGB(255,255,255)
-passwordBox.Font = Enum.Font.GothamBold
-passwordBox.TextSize = 16
-passwordBox.PlaceholderText = "Password..."
-passwordBox.ClearTextOnFocus = true
-passwordBox.TextEditable = true
-passwordBox.TextScaled = false
-passwordBox.TextStrokeTransparency = 0
-passwordBox.TextTransparency = 0
-passwordBox.TextXAlignment = Enum.TextXAlignment.Left
-passwordBox.TextYAlignment = Enum.TextYAlignment.Center
-passwordBox.Text = ""
-passwordBox.TextStrokeTransparency = 0
-passwordBox.BackgroundTransparency = 0
-passwordBox.ClipsDescendants = true
-passwordBox.TextWrapped = true
-passwordBox.ClearTextOnFocus = true
-passwordBox.TextEditable = true
-passwordBox.MultiLine = false
-
--- Submit button
-local submitBtn = Instance.new("TextButton", securityFrame)
-submitBtn.Size = UDim2.new(0,100,0,35)
-submitBtn.Position = UDim2.new(0,220,0,50)
-submitBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
-submitBtn.Text = "Login"
-submitBtn.TextColor3 = Color3.fromRGB(255,255,255)
-submitBtn.Font = Enum.Font.GothamBold
-submitBtn.TextSize = 14
-Instance.new("UICorner", submitBtn).CornerRadius = UDim.new(0,6)
-
--- Info label
-local infoLabel = Instance.new("TextLabel", securityFrame)
-infoLabel.Size = UDim2.new(1,0,0,30)
-infoLabel.Position = UDim2.new(0,0,0,95)
-infoLabel.BackgroundTransparency = 1
-infoLabel.Text = ""
-infoLabel.TextColor3 = Color3.fromRGB(255,0,0)
-infoLabel.Font = Enum.Font.FredokaOne
-infoLabel.TextSize = 14
-
--- Password logic
-local correctPassword = "fan" -- ganti sesuai password yang diinginkan
-
-submitBtn.MouseButton1Click:Connect(function()
-    if passwordBox.Text == correctPassword then
-        infoLabel.Text = "Password benar!"
-        -- Enable cheat & speed tabs
-        cheatBtn.Visible = true
-        speedBtn.Visible = true
-    else
-        infoLabel.Text = "Password error!"
-    end
-end)
-
--- Hide cheat & speed tabs until login
-cheatBtn.Visible = false
-speedBtn.Visible = false
-
-
+-- MrKimaq Mod Menu v1.10 (Full: Safe Speed + Smooth Fly + WallHack + Invisible + Security Login)
 
 -- Services
 local Players = game:GetService("Players")
@@ -161,20 +81,81 @@ contentFrame.Position = UDim2.new(0,5,0,65)
 contentFrame.BackgroundColor3 = Color3.fromRGB(25,25,25)
 Instance.new("UICorner", contentFrame).CornerRadius = UDim.new(0,8)
 
+-- ====================
 -- Security Frame
+-- ====================
 local securityFrame = Instance.new("Frame", contentFrame)
 securityFrame.Size = UDim2.new(1,0,1,0)
 securityFrame.BackgroundTransparency = 1
 
-local securityLabel = Instance.new("TextLabel", securityFrame)
-securityLabel.Size = UDim2.new(1,0,1,0)
-securityLabel.BackgroundTransparency = 1
-securityLabel.Text = "Security Menu masih kosong..."
-securityLabel.TextColor3 = Color3.fromRGB(180,180,180)
-securityLabel.Font = Enum.Font.FredokaOne
-securityLabel.TextSize = 16
+-- Password input
+local passwordLabel = Instance.new("TextLabel", securityFrame)
+passwordLabel.Size = UDim2.new(1,0,0,30)
+passwordLabel.Position = UDim2.new(0,0,0,10)
+passwordLabel.BackgroundTransparency = 1
+passwordLabel.Text = "Enter Password:"
+passwordLabel.TextColor3 = Color3.fromRGB(180,180,180)
+passwordLabel.Font = Enum.Font.FredokaOne
+passwordLabel.TextSize = 16
 
+local passwordBox = Instance.new("TextBox", securityFrame)
+passwordBox.Size = UDim2.new(0,200,0,35)
+passwordBox.Position = UDim2.new(0,10,0,50)
+passwordBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
+passwordBox.TextColor3 = Color3.fromRGB(255,255,255)
+passwordBox.Font = Enum.Font.GothamBold
+passwordBox.TextSize = 16
+passwordBox.PlaceholderText = "Password..."
+passwordBox.ClearTextOnFocus = true
+passwordBox.TextEditable = true
+passwordBox.TextScaled = false
+passwordBox.TextXAlignment = Enum.TextXAlignment.Left
+passwordBox.TextYAlignment = Enum.TextYAlignment.Center
+passwordBox.MultiLine = false
+
+-- Submit button
+local submitBtn = Instance.new("TextButton", securityFrame)
+submitBtn.Size = UDim2.new(0,100,0,35)
+submitBtn.Position = UDim2.new(0,220,0,50)
+submitBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
+submitBtn.Text = "Login"
+submitBtn.TextColor3 = Color3.fromRGB(255,255,255)
+submitBtn.Font = Enum.Font.GothamBold
+submitBtn.TextSize = 14
+Instance.new("UICorner", submitBtn).CornerRadius = UDim.new(0,6)
+
+-- Info label
+local infoLabel = Instance.new("TextLabel", securityFrame)
+infoLabel.Size = UDim2.new(1,0,0,30)
+infoLabel.Position = UDim2.new(0,0,0,95)
+infoLabel.BackgroundTransparency = 1
+infoLabel.Text = ""
+infoLabel.TextColor3 = Color3.fromRGB(255,0,0)
+infoLabel.Font = Enum.Font.FredokaOne
+infoLabel.TextSize = 14
+
+-- Password logic
+local correctPassword = "fan" -- ganti sesuai password yang diinginkan
+
+submitBtn.MouseButton1Click:Connect(function()
+    if passwordBox.Text == correctPassword then
+        infoLabel.Text = "Password benar!"
+        cheatBtn.Visible = true
+        speedBtn.Visible = true
+    else
+        infoLabel.Text = "Password error!"
+        cheatBtn.Visible = false
+        speedBtn.Visible = false
+    end
+end)
+
+-- Hide cheat & speed tabs until login
+cheatBtn.Visible = false
+speedBtn.Visible = false
+
+-- ====================
 -- Cheat Frame
+-- ====================
 local cheatFrame = Instance.new("Frame", contentFrame)
 cheatFrame.Size = UDim2.new(1,0,1,0)
 cheatFrame.BackgroundTransparency = 1
@@ -285,8 +266,6 @@ end)
 RunService.RenderStepped:Connect(function()
     if rootPart then
         if flying then
-            -- smooth fly
-            verticalVelocity = math.clamp(verticalVelocity + 2, -maxVerticalSpeed, maxVerticalSpeed)
             rootPart.Velocity = Vector3.new(0, flySpeed, 0)
         else
             verticalVelocity = 0
@@ -294,7 +273,9 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
+-- ====================
 -- Speed Frame
+-- ====================
 local speedFrame = Instance.new("Frame", contentFrame)
 speedFrame.Size = UDim2.new(1,0,1,0)
 speedFrame.BackgroundTransparency = 1
@@ -351,7 +332,9 @@ toggleBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+-- ====================
 -- Tab switch
+-- ====================
 local function switchTab(tab)
     securityFrame.Visible = (tab=="security")
     cheatFrame.Visible = (tab=="cheat")
@@ -361,7 +344,9 @@ securityBtn.MouseButton1Click:Connect(function() switchTab("security") end)
 cheatBtn.MouseButton1Click:Connect(function() switchTab("cheat") end)
 speedBtn.MouseButton1Click:Connect(function() switchTab("speed") end)
 
+-- ====================
 -- Main toggle button
+-- ====================
 local mainBtn = Instance.new("TextButton", screenGui)
 mainBtn.Size = UDim2.new(0,150,0,40)
 mainBtn.Position = UDim2.new(0.5,-75,0.1,0)
@@ -375,7 +360,9 @@ mainBtn.MouseButton1Click:Connect(function()
     mainFrame.Visible = not mainFrame.Visible
 end)
 
+-- ====================
 -- Respawn handler
+-- ====================
 player.CharacterAdded:Connect(function(char)
     character = char
     humanoid = character:WaitForChild("Humanoid")
