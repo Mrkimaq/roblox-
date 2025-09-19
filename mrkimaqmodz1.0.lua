@@ -1,373 +1,412 @@
--- MrKimaq Mod Menu v1.10 (Full: Safe Speed + Smooth Fly + WallHack + Invisible + Security Login)
+-- 🔹 Kimaq Modz Full Script (Draggable Button + Login + Sidebar UI)
 
--- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
-
 local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:FindFirstChildOfClass("Humanoid")
-local rootPart = character:WaitForChild("HumanoidRootPart")
+local hrp = player.Character and player.Character:WaitForChild("HumanoidRootPart")
 
--- Config
-local baseSpeed = 16
-local customSpeed = 50
-local speedEnabled = false
-local wallhackEnabled = false
-local invisibleEnabled = false
-local flying = false
-local flySpeed = 50
-local verticalVelocity = 0
-local maxVerticalSpeed = 100
+-- =====================
+-- 🔹 GUI Root
+-- =====================
+local gui = Instance.new("ScreenGui")
+gui.Name = "KimaqModz"
+gui.Parent = player:WaitForChild("PlayerGui")
+gui.ResetOnSpawn = false
 
--- GUI
-local screenGui = Instance.new("ScreenGui", CoreGui)
-screenGui.Name = "MrKimaqModMenu"
+-- =====================
+-- 🔹 Tombol Kimaq Modz (Draggable)
+-- =====================
+local openButton = Instance.new("TextButton")
+openButton.Size = UDim2.new(0,160,0,50)
+openButton.Position = UDim2.new(0.05,0,0.2,0)
+openButton.BackgroundColor3 = Color3.fromRGB(240,240,240)
+openButton.TextColor3 = Color3.fromRGB(30,30,30)
+openButton.Text = "Kimaq Modz"
+openButton.Font = Enum.Font.GothamBold
+openButton.TextSize = 18
+openButton.Parent = gui
+Instance.new("UICorner", openButton).CornerRadius = UDim.new(0,15)
 
--- Main Frame
-local mainFrame = Instance.new("Frame", screenGui)
-mainFrame.Size = UDim2.new(0, 340, 0, 350)
-mainFrame.Position = UDim2.new(0.5, -170, 0.5, -175)
-mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-mainFrame.BorderSizePixel = 0
-mainFrame.Active = true
-mainFrame.Draggable = true
-Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0,12)
-
--- Title
-local title = Instance.new("TextLabel", mainFrame)
-title.Size = UDim2.new(1,0,0,30)
-title.BackgroundTransparency = 1
-title.Text = ">>> MR KIMAQ MOD 1.10 <<<"
-title.TextColor3 = Color3.fromRGB(0,255,128)
-title.Font = Enum.Font.FredokaOne
-title.TextSize = 20
-spawn(function()
-    while task.wait(0.1) do
-        title.Text = title.Text:sub(2)..title.Text:sub(1,1)
+-- Drag logic
+local dragging, dragInput, dragStart, startPos
+local function update(input)
+    local delta = input.Position - dragStart
+    openButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+                                    startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+openButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = openButton.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+openButton.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
     end
 end)
 
--- Tabs
-local tabFrame = Instance.new("Frame", mainFrame)
-tabFrame.Size = UDim2.new(1,0,0,30)
-tabFrame.Position = UDim2.new(0,0,0,30)
-tabFrame.BackgroundColor3 = Color3.fromRGB(35,35,35)
-Instance.new("UICorner", tabFrame).CornerRadius = UDim.new(0,12)
+-- =====================
+-- 🔹 LOGIN FRAME
+-- =====================
+local loginFrame = Instance.new("Frame")
+loginFrame.Size = UDim2.new(0,350,0,200)
+loginFrame.Position = UDim2.new(0.5,-175,0.5,-100)
+loginFrame.BackgroundColor3 = Color3.fromRGB(255,255,255)
+loginFrame.Visible = false
+loginFrame.Parent = gui
+Instance.new("UICorner", loginFrame).CornerRadius = UDim.new(0,15)
 
-local function createTabButton(text,pos)
+local loginStroke = Instance.new("UIStroke")
+loginStroke.Color = Color3.fromRGB(180,180,255)
+loginStroke.Thickness = 1.5
+loginStroke.Parent = loginFrame
+
+local titleLogin = Instance.new("TextLabel")
+titleLogin.Size = UDim2.new(1,0,0,40)
+titleLogin.Text = "🔑 Kimaq Modz Key Login"
+titleLogin.Font = Enum.Font.GothamBold
+titleLogin.TextSize = 18
+titleLogin.TextColor3 = Color3.fromRGB(40,40,40)
+titleLogin.BackgroundTransparency = 1
+titleLogin.Parent = loginFrame
+
+local keyBox = Instance.new("TextBox")
+keyBox.Size = UDim2.new(0.8,0,0,35)
+keyBox.Position = UDim2.new(0.1,0,0.35,0)
+keyBox.PlaceholderText = "Enter Key..."
+keyBox.Text = ""
+keyBox.Font = Enum.Font.Gotham
+keyBox.TextSize = 14
+keyBox.TextColor3 = Color3.fromRGB(50,50,50)
+keyBox.BackgroundColor3 = Color3.fromRGB(245,245,245)
+keyBox.Parent = loginFrame
+Instance.new("UICorner", keyBox).CornerRadius = UDim.new(0,10)
+
+local loginBtn = Instance.new("TextButton")
+loginBtn.Size = UDim2.new(0.6,0,0,35)
+loginBtn.Position = UDim2.new(0.2,0,0.65,0)
+loginBtn.Text = "Login"
+loginBtn.Font = Enum.Font.GothamBold
+loginBtn.TextSize = 16
+loginBtn.TextColor3 = Color3.fromRGB(255,255,255)
+loginBtn.BackgroundColor3 = Color3.fromRGB(70,140,255)
+loginBtn.Parent = loginFrame
+Instance.new("UICorner", loginBtn).CornerRadius = UDim.new(0,10)
+
+local getKeyBtn = Instance.new("TextButton")
+getKeyBtn.Size = UDim2.new(0.4,0,0,30)
+getKeyBtn.Position = UDim2.new(0.3,0,0.85,0)
+getKeyBtn.Text = "Get Key"
+getKeyBtn.Font = Enum.Font.Gotham
+getKeyBtn.TextSize = 14
+getKeyBtn.TextColor3 = Color3.fromRGB(255,255,255)
+getKeyBtn.BackgroundColor3 = Color3.fromRGB(120,200,100)
+getKeyBtn.Parent = loginFrame
+Instance.new("UICorner", getKeyBtn).CornerRadius = UDim.new(0,10)
+
+local KEY_URL = "https://raw.githubusercontent.com/Mrkimaq/roblox-/refs/heads/main/pasword.txt"
+
+-- =====================
+-- 🔹 MAIN MENU (Sidebar + Pages)
+-- =====================
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0,550,0,350)
+mainFrame.Position = UDim2.new(0.5,-275,0.5,-175)
+mainFrame.BackgroundColor3 = Color3.fromRGB(255,255,255)
+mainFrame.Visible = false
+mainFrame.Parent = gui
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0,20)
+
+local stroke = Instance.new("UIStroke")
+stroke.Thickness = 1.5
+stroke.Color = Color3.fromRGB(220,220,220)
+stroke.Parent = mainFrame
+
+-- Title Bar
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1,0,0,45)
+titleBar.BackgroundColor3 = Color3.fromRGB(250,250,250)
+titleBar.Parent = mainFrame
+Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0,20)
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(0.5,0,1,0)
+titleLabel.Position = UDim2.new(0,15,0,0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Kimaq Modz"
+titleLabel.TextColor3 = Color3.fromRGB(40,40,40)
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextSize = 18
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.Parent = titleBar
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0,22,0,22)
+closeBtn.Position = UDim2.new(1,-35,0.5,-11)
+closeBtn.BackgroundColor3 = Color3.fromRGB(255,80,80)
+closeBtn.Text = ""
+closeBtn.Parent = titleBar
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(1,0)
+
+-- Sidebar
+local sidebar = Instance.new("Frame")
+sidebar.Size = UDim2.new(0,120,1,-45)
+sidebar.Position = UDim2.new(0,0,0,45)
+sidebar.BackgroundColor3 = Color3.fromRGB(248,248,248)
+sidebar.Parent = mainFrame
+Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0,15)
+
+-- Content
+local content = Instance.new("Frame")
+content.Size = UDim2.new(1,-120,1,-45)
+content.Position = UDim2.new(0,120,0,45)
+content.BackgroundColor3 = Color3.fromRGB(255,255,255)
+content.Parent = mainFrame
+Instance.new("UICorner", content).CornerRadius = UDim.new(0,15)
+
+-- Pages & Sidebar Buttons
+local pages = {}
+local function createPage(name)
+    local scroll = Instance.new("ScrollingFrame")
+    scroll.Name = name.."Page"
+    scroll.Size = UDim2.new(1,-20,1,-20)
+    scroll.Position = UDim2.new(0,10,0,10)
+    scroll.BackgroundTransparency = 1
+    scroll.Visible = false
+    scroll.Parent = content
+    scroll.CanvasSize = UDim2.new(0,0,0,0)
+    scroll.ScrollBarThickness = 6
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0,10)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Parent = scroll
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        scroll.CanvasSize = UDim2.new(0,0,0, layout.AbsoluteContentSize.Y + 20)
+    end)
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1,-10,0,40)
+    label.Text = name.." Settings"
+    label.TextColor3 = Color3.fromRGB(40,40,40)
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 16
+    label.BackgroundTransparency = 1
+    label.LayoutOrder = 0
+    label.Parent = scroll
+
+    pages[name] = scroll
+    return scroll
+end
+
+local function createTab(name, order)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.33, -3, 1, 0)
-    btn.Position = UDim2.new(pos,pos*2,0,0)
-    btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
-    btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(255,255,255)
-    btn.Font = Enum.Font.GothamBold
+    btn.Size = UDim2.new(1,-20,0,35)
+    btn.Position = UDim2.new(0,10,0,(order-1)*45+10)
+    btn.BackgroundColor3 = Color3.fromRGB(235,235,235)
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(60,60,60)
+    btn.Font = Enum.Font.Gotham
     btn.TextSize = 14
-    btn.Parent = tabFrame
+    btn.Parent = sidebar
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,10)
     return btn
 end
 
-local securityBtn = createTabButton("Security",0)
-local cheatBtn = createTabButton("Cheat",0.33)
-local speedBtn = createTabButton("Speed",0.66)
-
--- Content Frame
-local contentFrame = Instance.new("Frame", mainFrame)
-contentFrame.Size = UDim2.new(1,-10,1,-70)
-contentFrame.Position = UDim2.new(0,5,0,65)
-contentFrame.BackgroundColor3 = Color3.fromRGB(25,25,25)
-Instance.new("UICorner", contentFrame).CornerRadius = UDim.new(0,8)
-
--- ====================
--- Security Frame
--- ====================
-local securityFrame = Instance.new("Frame", contentFrame)
-securityFrame.Size = UDim2.new(1,0,1,0)
-securityFrame.BackgroundTransparency = 1
-
--- Password input
-local passwordLabel = Instance.new("TextLabel", securityFrame)
-passwordLabel.Size = UDim2.new(1,0,0,30)
-passwordLabel.Position = UDim2.new(0,0,0,10)
-passwordLabel.BackgroundTransparency = 1
-passwordLabel.Text = "Enter Password:"
-passwordLabel.TextColor3 = Color3.fromRGB(180,180,180)
-passwordLabel.Font = Enum.Font.FredokaOne
-passwordLabel.TextSize = 16
-
-local passwordBox = Instance.new("TextBox", securityFrame)
-passwordBox.Size = UDim2.new(0,200,0,35)
-passwordBox.Position = UDim2.new(0,10,0,50)
-passwordBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
-passwordBox.TextColor3 = Color3.fromRGB(255,255,255)
-passwordBox.Font = Enum.Font.GothamBold
-passwordBox.TextSize = 16
-passwordBox.PlaceholderText = "Password..."
-passwordBox.ClearTextOnFocus = true
-passwordBox.TextEditable = true
-passwordBox.TextScaled = false
-passwordBox.TextXAlignment = Enum.TextXAlignment.Left
-passwordBox.TextYAlignment = Enum.TextYAlignment.Center
-passwordBox.MultiLine = false
-
--- Submit button
-local submitBtn = Instance.new("TextButton", securityFrame)
-submitBtn.Size = UDim2.new(0,100,0,35)
-submitBtn.Position = UDim2.new(0,220,0,50)
-submitBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
-submitBtn.Text = "Login"
-submitBtn.TextColor3 = Color3.fromRGB(255,255,255)
-submitBtn.Font = Enum.Font.GothamBold
-submitBtn.TextSize = 14
-Instance.new("UICorner", submitBtn).CornerRadius = UDim.new(0,6)
-
--- Info label
-local infoLabel = Instance.new("TextLabel", securityFrame)
-infoLabel.Size = UDim2.new(1,0,0,30)
-infoLabel.Position = UDim2.new(0,0,0,95)
-infoLabel.BackgroundTransparency = 1
-infoLabel.Text = ""
-infoLabel.TextColor3 = Color3.fromRGB(255,0,0)
-infoLabel.Font = Enum.Font.FredokaOne
-infoLabel.TextSize = 14
-
--- Password logic
-local correctPassword = "fan" -- ganti sesuai password yang diinginkan
-
-submitBtn.MouseButton1Click:Connect(function()
-    if passwordBox.Text == correctPassword then
-        infoLabel.Text = "Password benar!"
-        cheatBtn.Visible = true
-        speedBtn.Visible = true
-    else
-        infoLabel.Text = "Password error!"
-        cheatBtn.Visible = false
-        speedBtn.Visible = false
-    end
-end)
-
--- Hide cheat & speed tabs until login
-cheatBtn.Visible = false
-speedBtn.Visible = false
-
--- ====================
--- Cheat Frame
--- ====================
-local cheatFrame = Instance.new("Frame", contentFrame)
-cheatFrame.Size = UDim2.new(1,0,1,0)
-cheatFrame.BackgroundTransparency = 1
-cheatFrame.Visible = false
-
--- WallHack Button
-local wallhackBtn = Instance.new("TextButton", cheatFrame)
-wallhackBtn.Size = UDim2.new(0,120,0,35)
-wallhackBtn.Position = UDim2.new(0,10,0,10)
-wallhackBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
-wallhackBtn.Text = "WallHack: OFF"
-wallhackBtn.TextColor3 = Color3.fromRGB(255,255,255)
-wallhackBtn.Font = Enum.Font.GothamBold
-wallhackBtn.TextSize = 14
-Instance.new("UICorner", wallhackBtn).CornerRadius = UDim.new(0,8)
-
-local originalCollisions = {}
-local function setWallhack(state)
-    wallhackEnabled = state
-    if wallhackEnabled then
-        wallhackBtn.BackgroundColor3 = Color3.fromRGB(0,170,127)
-        wallhackBtn.Text = "WallHack: ON"
-        for _,obj in ipairs(workspace:GetDescendants()) do
-            if obj:IsA("BasePart") and not obj:IsDescendantOf(character) then
-                originalCollisions[obj] = obj.CanCollide
-                obj.CanCollide = false
-            end
-        end
-    else
-        wallhackBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
-        wallhackBtn.Text = "WallHack: OFF"
-        for obj,coll in pairs(originalCollisions) do
-            if obj and obj.Parent then obj.CanCollide = coll end
-        end
-        originalCollisions = {}
-    end
-end
-wallhackBtn.MouseButton1Click:Connect(function() setWallhack(not wallhackEnabled) end)
-
--- Invisible Button
-local invisibleBtn = Instance.new("TextButton", cheatFrame)
-invisibleBtn.Size = UDim2.new(0,120,0,35)
-invisibleBtn.Position = UDim2.new(0,10,0,55)
-invisibleBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
-invisibleBtn.Text = "Invisible: OFF"
-invisibleBtn.TextColor3 = Color3.fromRGB(255,255,255)
-invisibleBtn.Font = Enum.Font.GothamBold
-invisibleBtn.TextSize = 14
-Instance.new("UICorner", invisibleBtn).CornerRadius = UDim.new(0,8)
-
-local storedParts = {}
-local storedClothing = {}
-local function setInvisible(state)
-    invisibleEnabled = state
-    if not character then return end
-    if invisibleEnabled then
-        invisibleBtn.BackgroundColor3 = Color3.fromRGB(0,170,127)
-        invisibleBtn.Text = "Invisible: ON"
-        storedParts, storedClothing = {},{}
-        for _,part in ipairs(character:GetDescendants()) do
-            if part:IsA("BasePart") or part:IsA("MeshPart") then
-                storedParts[part] = part.Transparency
-                part.Transparency = 1
-            elseif part:IsA("Accessory") and part:FindFirstChild("Handle") then
-                storedParts[part.Handle] = part.Handle.Transparency
-                part.Handle.Transparency = 1
-            elseif part:IsA("Clothing") then
-                storedClothing[part] = part:Clone()
-                part:Destroy()
-            end
-        end
-    else
-        invisibleBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
-        invisibleBtn.Text = "Invisible: OFF"
-        for part,orig in pairs(storedParts) do
-            if part and part.Parent then part.Transparency = orig end
-        end
-        for _,clone in pairs(storedClothing) do
-            if clone and character then clone.Parent = character end
-        end
-    end
-end
-invisibleBtn.MouseButton1Click:Connect(function() setInvisible(not invisibleEnabled) end)
-
--- Fly Button
-local flyBtn = Instance.new("TextButton", cheatFrame)
-flyBtn.Size = UDim2.new(0,120,0,35)
-flyBtn.Position = UDim2.new(0,10,0,100)
-flyBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
-flyBtn.Text = "Fly: OFF"
-flyBtn.TextColor3 = Color3.fromRGB(255,255,255)
-flyBtn.Font = Enum.Font.GothamBold
-flyBtn.TextSize = 14
-Instance.new("UICorner", flyBtn).CornerRadius = UDim.new(0,8)
-
-flyBtn.MouseButton1Click:Connect(function()
-    flying = not flying
-    if flying then
-        flyBtn.BackgroundColor3 = Color3.fromRGB(0,170,127)
-        flyBtn.Text = "Fly: ON"
-    else
-        flyBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
-        flyBtn.Text = "Fly: OFF"
-    end
-end)
-
--- Fly movement
-RunService.RenderStepped:Connect(function()
-    if rootPart then
-        if flying then
-            rootPart.Velocity = Vector3.new(0, flySpeed, 0)
-        else
-            verticalVelocity = 0
-        end
-    end
-end)
-
--- ====================
--- Speed Frame
--- ====================
-local speedFrame = Instance.new("Frame", contentFrame)
-speedFrame.Size = UDim2.new(1,0,1,0)
-speedFrame.BackgroundTransparency = 1
-speedFrame.Visible = false
-
-local toggleBtn = Instance.new("TextButton", speedFrame)
-toggleBtn.Size = UDim2.new(0,120,0,35)
-toggleBtn.Position = UDim2.new(0,10,0,10)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
-toggleBtn.Text = "Speed: OFF"
-toggleBtn.TextColor3 = Color3.fromRGB(255,255,255)
-toggleBtn.Font = Enum.Font.GothamBold
-toggleBtn.TextSize = 14
-Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0,8)
-
-local speeds = {20,50,100,200,300}
-local selectedBtn = nil
-for i,v in ipairs(speeds) do
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0,60,0,30)
-    btn.Position = UDim2.new(0,10+(i-1)*65,0,60)
-    btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
-    btn.Text = tostring(v)
-    btn.TextColor3 = Color3.fromRGB(255,255,255)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 14
-    btn.Parent = speedFrame
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,6)
-    local stroke = Instance.new("UIStroke")
-    stroke.Thickness = 2
-    stroke.Color = Color3.fromRGB(0,0,0)
-    stroke.Parent = btn
+-- Buat halaman
+local tabNames = {"Visual","Teleport","Security"}
+for i,name in ipairs(tabNames) do
+    local btn = createTab(name,i)
+    local page = createPage(name)
     btn.MouseButton1Click:Connect(function()
-        customSpeed = v
-        if speedEnabled and humanoid then humanoid.WalkSpeed = customSpeed end
-        if selectedBtn and selectedBtn:FindFirstChildOfClass("UIStroke") then
-            selectedBtn.UIStroke.Color = Color3.fromRGB(0,0,0)
+        for _,p in pairs(pages) do p.Visible = false end
+        page.Visible = true
+    end)
+end
+pages["Visual"].Visible = true
+
+-- =====================
+-- 🔹 Fly toggle di Visual (Keyboard: W/A/S/D + E/Q)
+-- =====================
+local BV
+local inputFlags = {forward=false,back=false,left=false,right=false,up=false,down=false}
+local speed = 50
+local originalGravity = workspace.Gravity
+
+-- Keyboard input
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.KeyCode == Enum.KeyCode.W then inputFlags.forward = true end
+    if input.KeyCode == Enum.KeyCode.S then inputFlags.back = true end
+    if input.KeyCode == Enum.KeyCode.A then inputFlags.left = true end
+    if input.KeyCode == Enum.KeyCode.D then inputFlags.right = true end
+    if input.KeyCode == Enum.KeyCode.E then inputFlags.up = true end
+    if input.KeyCode == Enum.KeyCode.Q then inputFlags.down = true end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.W then inputFlags.forward = false end
+    if input.KeyCode == Enum.KeyCode.S then inputFlags.back = false end
+    if input.KeyCode == Enum.KeyCode.A then inputFlags.left = false end
+    if input.KeyCode == Enum.KeyCode.D then inputFlags.right = false end
+    if input.KeyCode == Enum.KeyCode.E then inputFlags.up = false end
+    if input.KeyCode == Enum.KeyCode.Q then inputFlags.down = false end
+end)
+
+-- Start / Stop Fly
+local function startFly()
+    workspace.Gravity = 0
+    if hrp:FindFirstChild("FlyBV") then hrp.FlyBV:Destroy() end
+    BV = Instance.new("BodyVelocity")
+    BV.Name = "FlyBV"
+    BV.MaxForce = Vector3.new(5e5,5e5,5e5)
+    BV.Velocity = Vector3.new(0,0,0)
+    BV.Parent = hrp
+end
+
+local function stopFly()
+    workspace.Gravity = originalGravity
+    if hrp:FindFirstChild("FlyBV") then hrp.FlyBV:Destroy() end
+    BV = nil
+end
+
+-- Toggle switch UI
+local function createToggle(parent,labelText,callback)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1,-20,0,40)
+    frame.BackgroundTransparency = 1
+    frame.Parent = parent
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.6,0,1,0)
+    label.BackgroundTransparency = 1
+    label.Text = labelText
+    label.TextColor3 = Color3.fromRGB(50,50,50)
+    label.Font = Enum.Font.Gotham
+    label.TextSize = 14
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = frame
+
+    local toggleBtn = Instance.new("TextButton")
+    toggleBtn.Size = UDim2.new(0,50,0,25)
+    toggleBtn.Position = UDim2.new(1,-60,0.5,-12)
+    toggleBtn.BackgroundColor3 = Color3.fromRGB(180,180,180)
+    toggleBtn.Text = ""
+    toggleBtn.AutoButtonColor = false
+    toggleBtn.Parent = frame
+    Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(1,0)
+
+    local circle = Instance.new("Frame")
+    circle.Size = UDim2.new(0,21,0,21)
+    circle.Position = UDim2.new(0,2,0.5,-10)
+    circle.BackgroundColor3 = Color3.fromRGB(255,255,255)
+    circle.Parent = toggleBtn
+    Instance.new("UICorner", circle).CornerRadius = UDim.new(1,0)
+
+    local on = false
+    toggleBtn.MouseButton1Click:Connect(function()
+        on = not on
+        if on then
+            toggleBtn.BackgroundColor3 = Color3.fromRGB(80,220,120)
+            circle:TweenPosition(UDim2.new(1,-23,0.5,-10),"Out","Sine",0.2,true)
+        else
+            toggleBtn.BackgroundColor3 = Color3.fromRGB(180,180,180)
+            circle:TweenPosition(UDim2.new(0,2,0.5,-10),"Out","Sine",0.2,true)
         end
-        stroke.Color = Color3.fromRGB(0,128,255)
-        selectedBtn = btn
+        if callback then callback(on) end
     end)
 end
 
-toggleBtn.MouseButton1Click:Connect(function()
-    speedEnabled = not speedEnabled
-    if speedEnabled then
-        toggleBtn.BackgroundColor3 = Color3.fromRGB(0,170,127)
-        toggleBtn.Text = "Speed: ON"
-        if humanoid then humanoid.WalkSpeed = customSpeed end
+-- Fly toggle di halaman Visual
+createToggle(pages["Visual"],"Fly",function(on)
+    if on then startFly() else stopFly() end
+end)
+
+-- Fly movement update
+RunService.RenderStepped:Connect(function()
+    if not BV then return end
+    local camCF = workspace.CurrentCamera.CFrame
+    local dir = Vector3.zero
+    if inputFlags.forward then dir += camCF.LookVector end
+    if inputFlags.back then dir -= camCF.LookVector end
+    if inputFlags.left then dir -= camCF.RightVector end -- typo diperbaiki
+    if inputFlags.right then dir += camCF.RightVector end
+    if inputFlags.up then dir += Vector3.yAxis end
+    if inputFlags.down then dir -= Vector3.yAxis end
+    if dir.Magnitude > 0 then dir = dir.Unit end
+    BV.Velocity = dir * speed
+end)
+
+-- Update hrp saat respawn
+player.CharacterAdded:Connect(function(char)
+    task.wait(0.5)
+    hrp = char:WaitForChild("HumanoidRootPart")
+end)
+
+-- =====================
+-- 🔹 LOGIN SESSION
+-- =====================
+local isLoggedIn = false
+
+openButton.MouseButton1Click:Connect(function()
+    if isLoggedIn then
+        mainFrame.Visible = not mainFrame.Visible
     else
-        toggleBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
-        toggleBtn.Text = "Speed: OFF"
-        if humanoid then humanoid.WalkSpeed = baseSpeed end
+        loginFrame.Visible = true
     end
 end)
 
--- ====================
--- Tab switch
--- ====================
-local function switchTab(tab)
-    securityFrame.Visible = (tab=="security")
-    cheatFrame.Visible = (tab=="cheat")
-    speedFrame.Visible = (tab=="speed")
-end
-securityBtn.MouseButton1Click:Connect(function() switchTab("security") end)
-cheatBtn.MouseButton1Click:Connect(function() switchTab("cheat") end)
-speedBtn.MouseButton1Click:Connect(function() switchTab("speed") end)
-
--- ====================
--- Main toggle button
--- ====================
-local mainBtn = Instance.new("TextButton", screenGui)
-mainBtn.Size = UDim2.new(0,150,0,40)
-mainBtn.Position = UDim2.new(0.5,-75,0.1,0)
-mainBtn.BackgroundColor3 = Color3.fromRGB(0,170,127)
-mainBtn.Text = "Mr Kimaq Mod"
-mainBtn.TextColor3 = Color3.fromRGB(255,255,255)
-mainBtn.Font = Enum.Font.FredokaOne
-mainBtn.TextSize = 18
-Instance.new("UICorner", mainBtn).CornerRadius = UDim.new(0,10)
-mainBtn.MouseButton1Click:Connect(function()
-    mainFrame.Visible = not mainFrame.Visible
+loginBtn.MouseButton1Click:Connect(function()
+    local success, response = pcall(function()
+        return game:HttpGet(KEY_URL)
+    end)
+    if not success then
+        keyBox.Text = ""
+        keyBox.PlaceholderText = "⚠️ Failed to Fetch Key"
+        return
+    end
+    local githubKey = response:gsub("%s+","")
+    if keyBox.Text == githubKey then
+        loginFrame.Visible = false
+        mainFrame.Visible = true
+        pages["Visual"].Visible = true
+        isLoggedIn = true
+        print("✅ Key Verified! Main Menu Opened.")
+    else
+        keyBox.Text = ""
+        keyBox.PlaceholderText = "❌ Invalid Key"
+    end
 end)
 
--- ====================
+getKeyBtn.MouseButton1Click:Connect(function()
+    setclipboard(KEY_URL)
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+        Title="Kimaq Modz",
+        Text="Key link copied to clipboard!",
+        Duration=5
+    })
+end)
+
+-- Close main menu
+closeBtn.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
+end)
+
 -- Respawn handler
--- ====================
 player.CharacterAdded:Connect(function(char)
-    character = char
-    humanoid = character:WaitForChild("Humanoid")
-    rootPart = character:WaitForChild("HumanoidRootPart")
-    if speedEnabled then humanoid.WalkSpeed = customSpeed else humanoid.WalkSpeed = baseSpeed end
-    if wallhackEnabled then setWallhack(true) end
-    if invisibleEnabled then setInvisible(true) end
+    task.wait(0.5)
+    hrp = char:WaitForChild("HumanoidRootPart")
 end)
