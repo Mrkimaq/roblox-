@@ -1,4 +1,5 @@
--- 🔹 Kimaq Modz Full Script (Draggable Button + Login + Sidebar UI + Fly Toggle) FIXED LOGIN BUG
+-- 🔹 Kimaq Modz Full Script (Draggable Button + Login + Sidebar UI)
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -238,52 +239,74 @@ end
 pages["Visual"].Visible = true
 
 -- =====================
--- 🔹 Helper: Create iOS Style Toggle
+-- 🔹 Fly toggle di Visual
 -- =====================
-local function createToggle(parent, name, callback)
+local BV
+local flyConn
+local originalGravity = workspace.Gravity
+local function startFly()
+    workspace.Gravity = 0
+    if hrp:FindFirstChild("FlyBV") then hrp.FlyBV:Destroy() end
+    BV = Instance.new("BodyVelocity")
+    BV.Name = "FlyBV"
+    BV.MaxForce = Vector3.new(1e5,1e5,1e5)
+    BV.Velocity = Vector3.new(0,50,0)
+    BV.Parent = hrp
+end
+local function stopFly()
+    workspace.Gravity = originalGravity
+    if hrp:FindFirstChild("FlyBV") then hrp.FlyBV:Destroy() end
+end
+
+local function createToggle(parent,labelText,callback)
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1,-10,0,40)
+    frame.Size = UDim2.new(1,-20,0,40)
     frame.BackgroundTransparency = 1
     frame.Parent = parent
 
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(0.6,0,1,0)
-    label.Text = name
+    label.BackgroundTransparency = 1
+    label.Text = labelText
+    label.TextColor3 = Color3.fromRGB(50,50,50)
     label.Font = Enum.Font.Gotham
     label.TextSize = 14
-    label.TextColor3 = Color3.fromRGB(40,40,40)
     label.TextXAlignment = Enum.TextXAlignment.Left
-    label.BackgroundTransparency = 1
     label.Parent = frame
 
     local toggleBtn = Instance.new("TextButton")
-    toggleBtn.Size = UDim2.new(0,50,0,24)
+    toggleBtn.Size = UDim2.new(0,50,0,25)
     toggleBtn.Position = UDim2.new(1,-60,0.5,-12)
-    toggleBtn.BackgroundColor3 = Color3.fromRGB(220,220,220)
+    toggleBtn.BackgroundColor3 = Color3.fromRGB(180,180,180)
     toggleBtn.Text = ""
+    toggleBtn.AutoButtonColor = false
     toggleBtn.Parent = frame
     Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(1,0)
 
-    local knob = Instance.new("Frame")
-    knob.Size = UDim2.new(0,20,0,20)
-    knob.Position = UDim2.new(0,2,0.5,-10)
-    knob.BackgroundColor3 = Color3.fromRGB(255,255,255)
-    knob.Parent = toggleBtn
-    Instance.new("UICorner", knob).CornerRadius = UDim.new(1,0)
+    local circle = Instance.new("Frame")
+    circle.Size = UDim2.new(0,21,0,21)
+    circle.Position = UDim2.new(0,2,0.5,-10)
+    circle.BackgroundColor3 = Color3.fromRGB(255,255,255)
+    circle.Parent = toggleBtn
+    Instance.new("UICorner", circle).CornerRadius = UDim.new(1,0)
 
-    local state = false
+    local on = false
     toggleBtn.MouseButton1Click:Connect(function()
-        state = not state
-        if state then
-            toggleBtn.BackgroundColor3 = Color3.fromRGB(100,200,100)
-            knob:TweenPosition(UDim2.new(1,-22,0.5,-10), "Out", "Sine", 0.2, true)
+        on = not on
+        if on then
+            toggleBtn.BackgroundColor3 = Color3.fromRGB(80,220,120)
+            circle:TweenPosition(UDim2.new(1,-23,0.5,-10),"Out","Sine",0.2,true)
         else
-            toggleBtn.BackgroundColor3 = Color3.fromRGB(220,220,220)
-            knob:TweenPosition(UDim2.new(0,2,0.5,-10), "Out", "Sine", 0.2, true)
+            toggleBtn.BackgroundColor3 = Color3.fromRGB(180,180,180)
+            circle:TweenPosition(UDim2.new(0,2,0.5,-10),"Out","Sine",0.2,true)
         end
-        if callback then callback(state) end
+        if callback then callback(on) end
     end)
 end
+
+createToggle(pages["Visual"],"Fly",function(on)
+    if on then startFly() else stopFly() end
+end)
 
 -- =====================
 -- 🔹 LOGIN SESSION
@@ -329,95 +352,13 @@ getKeyBtn.MouseButton1Click:Connect(function()
     })
 end)
 
--- =====================
--- 🔹 Fly Logic + Joystick Call
--- =====================
-local UIS = game:GetService("UserInputService")
-local Camera = workspace.CurrentCamera
-local flyEnabled = false
-local flySpeed = 50
-
-local bodyVelocity = Instance.new("BodyVelocity")
-bodyVelocity.MaxForce = Vector3.new(1e5,1e5,1e5)
-
-local bodyGyro = Instance.new("BodyGyro")
-bodyGyro.MaxTorque = Vector3.new(1e5,1e5,1e5)
-
-local humanoid
-local joystickGui -- simpan reference biar bisa dihapus
-
-local function loadJoystick()
-    local success, result = pcall(function()
-        return loadstring(game:HttpGet("https://gist.githubusercontent.com/JungleScripts/53ff5028d6c76fb2d0fe8ff1aecfaa26/raw/42e7a9af1cea8983863941811aec3c36624f7b3f/gistfile1.txt"))()
-    end)
-    if success and result then
-        joystickGui = result -- biasanya return GUI atau function
-    else
-        warn("❌ Joystick gagal dimuat:", result)
-    end
-end
-
-local function removeJoystick()
-    if joystickGui and typeof(joystickGui) == "Instance" then
-        joystickGui:Destroy()
-        joystickGui = nil
-    end
-end
-
-local function startFlying()
-    if not player.Character then return end
-    hrp = player.Character:WaitForChild("HumanoidRootPart")
-    humanoid = player.Character:WaitForChild("Humanoid")
-    flyEnabled = true
-    bodyVelocity.Parent = hrp
-    bodyGyro.Parent = hrp
-    humanoid.PlatformStand = true
-    loadJoystick()
-end
-
-local function stopFlying()
-    flyEnabled = false
-    bodyVelocity.Parent = nil
-    bodyGyro.Parent = nil
-    if humanoid then humanoid.PlatformStand = false end
-    removeJoystick()
-end
-
--- Gerakan kamera arah
-RunService.RenderStepped:Connect(function()
-    if flyEnabled and hrp then
-        local dir = Vector3.zero
-        local camCF = Camera.CFrame
-        if UIS:IsKeyDown(Enum.KeyCode.W) then dir += camCF.LookVector end
-        if UIS:IsKeyDown(Enum.KeyCode.S) then dir -= camCF.LookVector end
-        if UIS:IsKeyDown(Enum.KeyCode.A) then dir -= camCF.RightVector end
-        if UIS:IsKeyDown(Enum.KeyCode.D) then dir += camCF.RightVector end
-        if UIS:IsKeyDown(Enum.KeyCode.E) then dir += Vector3.yAxis end
-        if UIS:IsKeyDown(Enum.KeyCode.Q) then dir -= Vector3.yAxis end
-        if dir.Magnitude > 0 then dir = dir.Unit end
-        bodyVelocity.Velocity = dir * flySpeed
-        bodyGyro.CFrame = camCF
-    end
+-- Close main menu
+closeBtn.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
 end)
 
--- 🔹 Toggle untuk Fly di tab Visual
-createToggle(pages["Visual"], "Fly", function(state)
-    if state then
-        startFlying()
-    else
-        stopFlying()
-    end
-end)
-
-
-
--- Respawn Handler
+-- Respawn handler
 player.CharacterAdded:Connect(function(char)
     task.wait(0.5)
     hrp = char:WaitForChild("HumanoidRootPart")
-end)
-
--- Tombol Close di MainFrame
-closeBtn.MouseButton1Click:Connect(function()
-    mainFrame.Visible = false
 end)
