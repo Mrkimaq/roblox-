@@ -1,0 +1,118 @@
+-- Drag Utility Function
+local function makeDraggable(frame)
+    local dragging, dragStart, startPos
+
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+-- Key Button Creator
+local function createKeyButton(parent, keyText, keyCode, position)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 60, 0, 60)
+    button.Position = position
+    button.Text = keyText
+    button.Font = Enum.Font.SourceSansBold
+    button.TextSize = 26
+    button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BorderSizePixel = 0
+    button.Parent = parent
+
+    button.MouseButton1Down:Connect(function()
+        pcall(function() keypress(keyCode) end)
+        button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    end)
+    button.MouseButton1Up:Connect(function()
+        pcall(function() keyrelease(keyCode) end)
+        button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    end)
+end
+
+-- GUI setup
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "WASDQEGui"
+
+-- === WASD Panel ===
+local wasdFrame = Instance.new("Frame")
+wasdFrame.Size = UDim2.new(0, 200, 0, 200)
+wasdFrame.Position = UDim2.new(0, 10, 1, -210)
+wasdFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+wasdFrame.BorderSizePixel = 0
+wasdFrame.Active = true
+wasdFrame.Draggable = false
+wasdFrame.Parent = gui
+makeDraggable(wasdFrame)
+
+-- Close button for WASD
+local wasdCloseBtn = Instance.new("TextButton", wasdFrame)
+wasdCloseBtn.Size = UDim2.new(0, 24, 0, 24)
+wasdCloseBtn.Position = UDim2.new(1, -30, 0, 5)
+wasdCloseBtn.Text = "X"
+wasdCloseBtn.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
+wasdCloseBtn.TextColor3 = Color3.new(1,1,1)
+wasdCloseBtn.BorderSizePixel = 0
+wasdCloseBtn.MouseButton1Click:Connect(function()
+    wasdFrame.Visible = false
+end)
+
+local wasdContent = Instance.new("Frame", wasdFrame)
+wasdContent.Position = UDim2.new(0, 0, 0, 30)
+wasdContent.Size = UDim2.new(1, 0, 1, -30)
+wasdContent.BackgroundTransparency = 1
+
+-- WASD layout
+createKeyButton(wasdContent, "W", 0x57, UDim2.new(0.33, 0, 0, 0))
+createKeyButton(wasdContent, "A", 0x41, UDim2.new(0, 0, 0, 70))
+createKeyButton(wasdContent, "S", 0x53, UDim2.new(0.33, 0, 0, 70))
+createKeyButton(wasdContent, "D", 0x44, UDim2.new(0.66, 0, 0, 70))
+
+-- === QE Panel ===
+local qeFrame = Instance.new("Frame")
+qeFrame.Size = UDim2.new(0, 100, 0, 160)
+qeFrame.Position = UDim2.new(1, -110, 1, -170)
+qeFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+qeFrame.BorderSizePixel = 0
+qeFrame.Active = true
+qeFrame.Draggable = false
+qeFrame.Parent = gui
+makeDraggable(qeFrame)
+
+-- Close button for QE
+local qeCloseBtn = Instance.new("TextButton", qeFrame)
+qeCloseBtn.Size = UDim2.new(0, 24, 0, 24)
+qeCloseBtn.Position = UDim2.new(1, -30, 0, 5)
+qeCloseBtn.Text = "X"
+qeCloseBtn.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
+qeCloseBtn.TextColor3 = Color3.new(1,1,1)
+qeCloseBtn.BorderSizePixel = 0
+qeCloseBtn.MouseButton1Click:Connect(function()
+    qeFrame.Visible = false
+end)
+
+local qeContent = Instance.new("Frame", qeFrame)
+qeContent.Position = UDim2.new(0, 0, 0, 30)
+qeContent.Size = UDim2.new(1, 0, 1, -30)
+qeContent.BackgroundTransparency = 1
+
+-- Vertical layout: E above Q
+createKeyButton(qeContent, "E", 0x45, UDim2.new(0.15, 0, 0, 0))
+createKeyButton(qeContent, "Q", 0x51, UDim2.new(0.15, 0, 0, 70))
