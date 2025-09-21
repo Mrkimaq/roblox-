@@ -1,4 +1,4 @@
--- 🔹 Kimaq Modz Full Script (Draggable Button + Login + Sidebar UI + Fly Toggle) FIXED LOGIN BUG
+-- 🔹 Kimaq Modz Full Script (Draggable Button + Login + Sidebar UI + Fly Toggle + Dual Get Key)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -61,8 +61,8 @@ end)
 -- 🔹 LOGIN FRAME
 -- =====================
 local loginFrame = Instance.new("Frame")
-loginFrame.Size = UDim2.new(0,350,0,200)
-loginFrame.Position = UDim2.new(0.5,-175,0.5,-100)
+loginFrame.Size = UDim2.new(0,350,0,220)
+loginFrame.Position = UDim2.new(0.5,-175,0.5,-110)
 loginFrame.BackgroundColor3 = Color3.fromRGB(255,255,255)
 loginFrame.Visible = false
 loginFrame.Parent = gui
@@ -105,10 +105,11 @@ loginBtn.BackgroundColor3 = Color3.fromRGB(70,140,255)
 loginBtn.Parent = loginFrame
 Instance.new("UICorner", loginBtn).CornerRadius = UDim.new(0,10)
 
+-- 🔹 Dua tombol Get Key
 local getKeyBtn = Instance.new("TextButton")
 getKeyBtn.Size = UDim2.new(0.4,0,0,30)
-getKeyBtn.Position = UDim2.new(0.3,0,0.85,0)
-getKeyBtn.Text = "Get Key"
+getKeyBtn.Position = UDim2.new(0.05,0,0.85,0)
+getKeyBtn.Text = "Get Key #1"
 getKeyBtn.Font = Enum.Font.Gotham
 getKeyBtn.TextSize = 14
 getKeyBtn.TextColor3 = Color3.fromRGB(255,255,255)
@@ -116,7 +117,20 @@ getKeyBtn.BackgroundColor3 = Color3.fromRGB(120,200,100)
 getKeyBtn.Parent = loginFrame
 Instance.new("UICorner", getKeyBtn).CornerRadius = UDim.new(0,10)
 
+local getKeyBtn2 = Instance.new("TextButton")
+getKeyBtn2.Size = UDim2.new(0.4,0,0,30)
+getKeyBtn2.Position = UDim2.new(0.55,0,0.85,0)
+getKeyBtn2.Text = "Get Key #2"
+getKeyBtn2.Font = Enum.Font.Gotham
+getKeyBtn2.TextSize = 14
+getKeyBtn2.TextColor3 = Color3.fromRGB(255,255,255)
+getKeyBtn2.BackgroundColor3 = Color3.fromRGB(100,180,220)
+getKeyBtn2.Parent = loginFrame
+Instance.new("UICorner", getKeyBtn2).CornerRadius = UDim.new(0,10)
+
+-- 🔹 URL Keys
 local KEY_URL = "https://raw.githubusercontent.com/Mrkimaq/roblox-/refs/heads/main/pasword.txt"
+local KEY_URL2 = "https://pastebin.com/raw/yourbackupkey" -- ganti sesuai link kamu
 
 -- =====================
 -- 🔹 MAIN MENU (Sidebar + Pages)
@@ -320,11 +334,21 @@ loginBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+-- Tombol Get Key
 getKeyBtn.MouseButton1Click:Connect(function()
     setclipboard(KEY_URL)
     game:GetService("StarterGui"):SetCore("SendNotification",{
         Title="Kimaq Modz",
-        Text="Key link copied to clipboard!",
+        Text="Key link #1 copied!",
+        Duration=5
+    })
+end)
+
+getKeyBtn2.MouseButton1Click:Connect(function()
+    setclipboard(KEY_URL2)
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+        Title="Kimaq Modz",
+        Text="Key link #2 copied!",
         Duration=5
     })
 end)
@@ -348,7 +372,7 @@ local joystickGui -- simpan reference biar bisa dihapus
 
 local function loadJoystick()
     local success, result = pcall(function()
-        return loadstring(game:HttpGet("https://gist.githubusercontent.com/JungleScripts/53ff5028d6c76fb2d0fe8ff1aecfaa26/raw/42e7a9af1cea8983863941811aec3c36624f7b3f/gistfile1.txt"))()
+        return loadstring(game:HttpGet("https://raw.githubusercontent.com/Mrkimaq/roblox-/refs/heads/main/fly.txt"))()
     end)
     if success and result then
         joystickGui = result -- biasanya return GUI atau function
@@ -409,6 +433,142 @@ createToggle(pages["Visual"], "Fly", function(state)
     end
 end)
 
+-- =====================
+-- 🔹 Invisible Logic
+-- =====================
+local invis_on = false
+
+local function setTransparency(character, transparency)
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") or part:IsA("Decal") then
+            part.Transparency = transparency
+        end
+    end
+end
+
+local function startInvisibility()
+    invis_on = true
+    if not player.Character then return end
+
+    local savedpos = player.Character.HumanoidRootPart.CFrame
+    task.wait()
+    player.Character:MoveTo(Vector3.new(-25.95, 84, 3537.55))
+    task.wait(0.15)
+
+    local Seat = Instance.new("Seat", workspace)
+    Seat.Anchored = false
+    Seat.CanCollide = false
+    Seat.Name = "invischair"
+    Seat.Transparency = 1
+    Seat.Position = Vector3.new(-25.95, 84, 3537.55)
+
+    local Weld = Instance.new("Weld", Seat)
+    Weld.Part0 = Seat
+    Weld.Part1 = player.Character:FindFirstChild("Torso") or player.Character:FindFirstChild("UpperTorso")
+
+    task.wait()
+    Seat.CFrame = savedpos
+    setTransparency(player.Character, 0.5)
+
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "Invis (ON)",
+        Duration = 3,
+        Text = "STATUS:"
+    })
+end
+
+local function stopInvisibility()
+    invis_on = false
+    local invisChair = workspace:FindFirstChild("invischair")
+    if invisChair then invisChair:Destroy() end
+    if player.Character then
+        setTransparency(player.Character, 0)
+    end
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "Invis (OFF)",
+        Duration = 3,
+        Text = "STATUS:"
+    })
+end
+
+-- 🔹 Toggle untuk Invisible di tab Visual
+createToggle(pages["Visual"], "Invisible", function(state)
+    if state then
+        startInvisibility()
+    else
+        stopInvisibility()
+    end
+end)
+
+
+--- =====================
+-- 🔹 Walhack (Noclip)
+-- =====================
+local walhackEnabled = false
+
+RunService.Stepped:Connect(function()
+    if walhackEnabled and player.Character then
+        for _, part in pairs(player.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+-- =====================
+-- 🔹 Walhack (Noclip terbatas)
+-- =====================
+local walhackEnabled = false
+
+RunService.Stepped:Connect(function()
+    if walhackEnabled and player.Character then
+        for _, part in pairs(player.Character:GetDescendants()) do
+            if part:IsA("BasePart") and part.CanCollide then
+                part.CanCollide = false
+            end
+        end
+    elseif player.Character then
+        for _, part in pairs(player.Character:GetDescendants()) do
+            if part:IsA("BasePart") and not part.CanCollide then
+                part.CanCollide = true
+            end
+        end
+    end
+end)
+
+createToggle(pages["Visual"], "Walhack", function(state)
+    walhackEnabled = state
+    print(state and "✅ Walhack ON" or "❌ Walhack OFF")
+end)
+
+
+
+-- =====================
+-- 🔹 Teleport Logic
+-- =====================
+local teleportEnabled = false
+
+local function startTeleport()
+    teleportEnabled = true
+    print("✅ Teleport Mode ON")
+    -- nanti bisa isi logika teleport otomatis di sini
+end
+
+local function stopTeleport()
+    teleportEnabled = false
+    print("❌ Teleport Mode OFF")
+    -- matikan / reset logika teleport di sini
+end
+
+-- 🔹 Toggle untuk Teleport di tab Teleport
+createToggle(pages["Teleport"], "Teleport", function(state)
+    if state then
+        startTeleport()
+    else
+        stopTeleport()
+    end
+end)
 
 
 -- Respawn Handler
