@@ -9,8 +9,8 @@ local LEFT_A = 0x41   -- A
 local LEFT_S = 0x53   -- S
 local LEFT_D = 0x44   -- D
 
-local RIGHT_UP   = 0x20 -- Space
-local RIGHT_DOWN = 0x43 -- C
+local RIGHT_UP   = 0x20 -- E
+local RIGHT_DOWN = 0x43 -- Q
 
 local LEFT_PANEL_SIZE  = Vector2.new(170, 170)
 local RIGHT_PANEL_SIZE = Vector2.new(100, 140)
