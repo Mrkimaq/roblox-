@@ -1,29 +1,32 @@
--- KimaqModz — Left D-Pad (WASD) + Right Vertical (Space/C) (NON-DRAGGABLE)
+-- KimaqModz — Left D-Pad (WASD) + Right Vertical (E/Q) (NON-DRAGGABLE)
 -- Exploit mode: uses keypress/keyrelease (Synapse/KRNL/etc)
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 
--- CONFIG
+-- CONFIG (key codes)
+-- Kiri (movement)
 local LEFT_W = 0x57   -- W
 local LEFT_A = 0x41   -- A
 local LEFT_S = 0x53   -- S
 local LEFT_D = 0x44   -- D
 
-local RIGHT_UP   = 0x20 -- E
-local RIGHT_DOWN = 0x43 -- Q
+-- Kanan (aksi vertical) -> sekarang E / Q (naik/turun untuk fly script mu)
+local RIGHT_UP   = 0x45 -- E
+local RIGHT_DOWN = 0x51 -- Q
 
+-- Ukuran & layout
 local LEFT_PANEL_SIZE  = Vector2.new(170, 170)
 local RIGHT_PANEL_SIZE = Vector2.new(100, 140)
 local BUTTON_SIZE_LEFT = 56
 local BUTTON_SIZE_RIGHT = 56
 
--- safe wrappers for exploit functions
+-- safe wrappers for exploit functions (pcall untuk aman)
 local function safePress(k) pcall(function() keypress(k) end) end
 local function safeRelease(k) pcall(function() keyrelease(k) end) end
 
 -- create gui root
 local gui = Instance.new("ScreenGui")
-gui.Name = "KimaqModz_DP_RV_NoDrag"
+gui.Name = "KimaqModz_DP_RV_NoDrag_EQ"
 gui.ResetOnSpawn = false
 gui.Parent = CoreGui
 
@@ -48,7 +51,7 @@ local function createArrowButton(parent, size, pos, arrowChar, keycode)
     local sc = Instance.new("UICorner", shadow)
     sc.CornerRadius = UDim.new(1,0)
 
-    -- circle
+    -- circle (outer highlight)
     local circ = Instance.new("Frame")
     circ.Size = UDim2.new(1,0,1,0)
     circ.Position = UDim2.new(0,0,0,0)
@@ -124,24 +127,25 @@ leftPanel.Position = UDim2.new(0, 12, 1, -LEFT_PANEL_SIZE.Y - 12)
 leftPanel.BackgroundTransparency = 1
 leftPanel.BorderSizePixel = 0
 leftPanel.Parent = gui
--- NOTE: non-draggable — no makeDraggable call
+-- NON-DRAGGABLE (tidak memanggil makeDraggable)
 
 -- positions relative to panel center
 local centerX = LEFT_PANEL_SIZE.X * 0.5
 local centerY = LEFT_PANEL_SIZE.Y * 0.5
 local offset = 44
 
--- create arrows (pixel positions -> UDim2)
+-- helper: convert px coords in panel to UDim2
 local function pxToUDim2(px, py)
     return UDim2.new(0, px, 0, py)
 end
 
+-- create left arrows
 createArrowButton(leftPanel, BUTTON_SIZE_LEFT, pxToUDim2(centerX, centerY - offset), "▲", LEFT_W)   -- Up -> W
 createArrowButton(leftPanel, BUTTON_SIZE_LEFT, pxToUDim2(centerX, centerY + offset), "▼", LEFT_S)   -- Down -> S
 createArrowButton(leftPanel, BUTTON_SIZE_LEFT, pxToUDim2(centerX - offset, centerY), "◀", LEFT_A)   -- Left -> A
 createArrowButton(leftPanel, BUTTON_SIZE_LEFT, pxToUDim2(centerX + offset, centerY), "▶", LEFT_D)   -- Right -> D
 
--- small hint under left panel
+-- left hint
 local leftHint = Instance.new("TextLabel")
 leftHint.Size = UDim2.new(0, LEFT_PANEL_SIZE.X, 0, 18)
 leftHint.Position = UDim2.new(0, 0, 0, LEFT_PANEL_SIZE.Y + 6)
@@ -153,7 +157,7 @@ leftHint.TextColor3 = Color3.fromRGB(200,200,200)
 leftHint.TextXAlignment = Enum.TextXAlignment.Center
 leftHint.Parent = leftPanel
 
--- === RIGHT PANEL (Only Up and Down) ===
+-- === RIGHT PANEL (Only Up and Down -> E / Q) ===
 local rightPanel = Instance.new("Frame")
 rightPanel.Name = "RightDV"
 rightPanel.Size = UDim2.new(0, RIGHT_PANEL_SIZE.X, 0, RIGHT_PANEL_SIZE.Y)
@@ -161,14 +165,14 @@ rightPanel.Position = UDim2.new(1, -RIGHT_PANEL_SIZE.X - 12, 1, -RIGHT_PANEL_SIZ
 rightPanel.BackgroundTransparency = 1
 rightPanel.BorderSizePixel = 0
 rightPanel.Parent = gui
--- NOTE: non-draggable — no makeDraggable call
+-- NON-DRAGGABLE
 
 -- center coords for right panel
 local rcx = RIGHT_PANEL_SIZE.X * 0.5
 local rcy = RIGHT_PANEL_SIZE.Y * 0.5
 local roff = 34
 
--- Up = Space, Down = C
+-- Up = E, Down = Q
 createArrowButton(rightPanel, BUTTON_SIZE_RIGHT, pxToUDim2(rcx, rcy - roff), "▲", RIGHT_UP)
 createArrowButton(rightPanel, BUTTON_SIZE_RIGHT, pxToUDim2(rcx, rcy + roff), "▼", RIGHT_DOWN)
 
@@ -183,4 +187,4 @@ rightHint.TextColor3 = Color3.fromRGB(200,200,200)
 rightHint.TextXAlignment = Enum.TextXAlignment.Center
 rightHint.Parent = rightPanel
 
-print("KimaqModz: Left (WASD) + Right (Space/C) loaded (exploit mode, NON-DRAGGABLE).")
+print("KimaqModz: Left (WASD) + Right (E/Q) loaded (exploit mode, NON-DRAGGABLE).")
