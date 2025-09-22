@@ -372,7 +372,7 @@ local joystickGui -- simpan reference biar bisa dihapus
 
 local function loadJoystick()
     local success, result = pcall(function()
-        return loadstring(game:HttpGet("https://raw.githubusercontent.com/Mrkimaq/roblox-/refs/heads/main/fly.txt"))()
+        return loadstring(game:HttpGet("https://raw.githubusercontent.com/Mrkimaq/roblox-/refs/heads/main/joystick.lua"))()
     end)
     if success and result then
         joystickGui = result -- biasanya return GUI atau function
