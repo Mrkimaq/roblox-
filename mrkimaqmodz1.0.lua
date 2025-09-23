@@ -119,7 +119,7 @@ Instance.new("UICorner", getKeyBtn2).CornerRadius = UDim.new(0,10)
 
 -- 🔹 URL Keys
 local KEY_URL = "https://raw.githubusercontent.com/Mrkimaq/roblox-/refs/heads/main/pasword.txt" -- GitHub key
-local KEY_URL2 = "https://pastebin.com/raw/yourbackupkey" -- Pastebin key
+local KEY_URL2 = "https://sfl.gl/BDOLxzE" -- Pastebin key
 
 -- =====================
 -- 🔹 MAIN MENU (Sidebar + Pages)
@@ -387,7 +387,7 @@ end)
 -- 🔹 Fly Logic + Joystick
 -- =====================
 local flyEnabled = false
-local flySpeed = 50
+local flySpeed = 100
 local bodyVelocity = Instance.new("BodyVelocity")
 bodyVelocity.MaxForce = Vector3.new(1e5,1e5,1e5)
 local bodyGyro = Instance.new("BodyGyro")
@@ -526,18 +526,81 @@ player.CharacterAdded:Connect(function(char)
     updateWalkSpeed()
 end)
 
+createToggle(pages["Visual"], " TEXT VIEW ", function(state)
+    teleportPuncakEnabled = state
+    if state then
+        teleportPuncak()
+        print("✅ Teleport Puncak ON")
+    else
+        print("❌ Teleport Puncak OFF")
+    end
+end)
+
+createToggle(pages["Visual"], " TEXT VIEW ", function(state)
+    teleportPuncakEnabled = state
+    if state then
+        teleportPuncak()
+        print("✅ Teleport Puncak ON")
+    else
+        print("❌ Teleport Puncak OFF")
+    end
+end)
+
+createToggle(pages["Visual"], " TEXT VIEW ", function(state)
+    teleportPuncakEnabled = state
+    if state then
+        teleportPuncak()
+        print("✅ Teleport Puncak ON")
+    else
+        print("❌ Teleport Puncak OFF")
+    end
+end)
+
+createToggle(pages["Visual"], " TEXT VIEW ", function(state)
+    teleportPuncakEnabled = state
+    if state then
+        teleportPuncak()
+        print("✅ Teleport Puncak ON")
+    else
+        print("❌ Teleport Puncak OFF")
+    end
+end)
+
 -- =====================
 -- 🔹 Teleport Toggle
 -- =====================
-local teleportEnabled = false
-local function startTeleport() teleportEnabled = true print("✅ Teleport Mode ON") end
-local function stopTeleport() teleportEnabled = false print("❌ Teleport Mode OFF") end
-createToggle(pages["Teleport"], "TELEPORT BASECAMP", function(state) 
-    if state then startTeleport() else stopTeleport() end
+
+-- =====================
+-- 🔹 TELEPORT BASECAMP
+-- =====================
+local teleportBasecampEnabled = false
+local basecampCFrame = CFrame.new(0,10,0) -- fallback posisi
+
+local function teleportBasecamp()
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        player.Character.HumanoidRootPart.CFrame = basecampCFrame
+    end
+end
+
+createToggle(pages["Teleport"], "TELEPORT BASECAMP", function(state)
+    teleportBasecampEnabled = state
+    if state then
+        teleportBasecamp()
+        print("✅ Teleport Basecamp ON")
+    else
+        print("❌ Teleport Basecamp OFF")
+    end
 end)
-createToggle(pages["Teleport"], "TELEPORT PUNCAK", function(state) 
-    if state then startTeleport() else stopTeleport() end
+
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if not gpe and teleportBasecampEnabled and input.KeyCode == Enum.KeyCode.T then
+        teleportBasecamp()
+    end
 end)
+
+-- =====================
+-- 🔹 TELEPORT PUNCAK
+-- =====================
 
 -- =====================
 -- 🔹 Close Main Frame
