@@ -1,4 +1,4 @@
--- 🔹 Kimaq Modz Full Script (Draggable Button + Login + Sidebar UI + Fly Toggle + Dual Get Key)
+-- 🔹 Kimaq Modz Full Script (Draggable Button + Login + Sidebar UI + Fly + Speed + Invisible + Walhack + Teleport)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -61,8 +61,8 @@ end)
 -- 🔹 LOGIN FRAME
 -- =====================
 local loginFrame = Instance.new("Frame")
-loginFrame.Size = UDim2.new(0,350,0,220)
-loginFrame.Position = UDim2.new(0.5,-175,0.5,-110)
+loginFrame.Size = UDim2.new(0,350,0,180)
+loginFrame.Position = UDim2.new(0.5,-175,0.5,-90)
 loginFrame.BackgroundColor3 = Color3.fromRGB(255,255,255)
 loginFrame.Visible = false
 loginFrame.Parent = gui
@@ -105,22 +105,11 @@ loginBtn.BackgroundColor3 = Color3.fromRGB(70,140,255)
 loginBtn.Parent = loginFrame
 Instance.new("UICorner", loginBtn).CornerRadius = UDim.new(0,10)
 
--- 🔹 Dua tombol Get Key
-local getKeyBtn = Instance.new("TextButton")
-getKeyBtn.Size = UDim2.new(0.4,0,0,30)
-getKeyBtn.Position = UDim2.new(0.05,0,0.85,0)
-getKeyBtn.Text = "Get Key #1"
-getKeyBtn.Font = Enum.Font.Gotham
-getKeyBtn.TextSize = 14
-getKeyBtn.TextColor3 = Color3.fromRGB(255,255,255)
-getKeyBtn.BackgroundColor3 = Color3.fromRGB(120,200,100)
-getKeyBtn.Parent = loginFrame
-Instance.new("UICorner", getKeyBtn).CornerRadius = UDim.new(0,10)
-
+-- 🔹 Tombol Get Key #2 (Pastebin)
 local getKeyBtn2 = Instance.new("TextButton")
-getKeyBtn2.Size = UDim2.new(0.4,0,0,30)
-getKeyBtn2.Position = UDim2.new(0.55,0,0.85,0)
-getKeyBtn2.Text = "Get Key #2"
+getKeyBtn2.Size = UDim2.new(0.6,0,0,30)
+getKeyBtn2.Position = UDim2.new(0.2,0,0.85,0)
+getKeyBtn2.Text = "Get Key"
 getKeyBtn2.Font = Enum.Font.Gotham
 getKeyBtn2.TextSize = 14
 getKeyBtn2.TextColor3 = Color3.fromRGB(255,255,255)
@@ -129,8 +118,8 @@ getKeyBtn2.Parent = loginFrame
 Instance.new("UICorner", getKeyBtn2).CornerRadius = UDim.new(0,10)
 
 -- 🔹 URL Keys
-local KEY_URL = "https://raw.githubusercontent.com/Mrkimaq/roblox-/refs/heads/main/pasword.txt"
-local KEY_URL2 = "https://pastebin.com/raw/yourbackupkey" -- ganti sesuai link kamu
+local KEY_URL = "https://raw.githubusercontent.com/Mrkimaq/roblox-/refs/heads/main/pasword.txt" -- GitHub key
+local KEY_URL2 = "https://pastebin.com/raw/yourbackupkey" -- Pastebin key
 
 -- =====================
 -- 🔹 MAIN MENU (Sidebar + Pages)
@@ -252,7 +241,7 @@ end
 pages["Visual"].Visible = true
 
 -- =====================
--- 🔹 Helper: Create iOS Style Toggle
+-- 🔹 Toggle & Slider Helper
 -- =====================
 local function createToggle(parent, name, callback)
     local frame = Instance.new("Frame")
@@ -299,11 +288,61 @@ local function createToggle(parent, name, callback)
     end)
 end
 
+local function createSlider(parent, min, max, default, callback)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1,-10,0,50)
+    frame.BackgroundTransparency = 1
+    frame.Parent = parent
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1,0,0,20)
+    label.Position = UDim2.new(0,0,0,0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(40,40,40)
+    label.Font = Enum.Font.Gotham
+    label.TextSize = 14
+    label.Text = "Value: "..default
+    label.Parent = frame
+
+    local slider = Instance.new("TextButton")
+    slider.Size = UDim2.new(1,0,0,24)
+    slider.Position = UDim2.new(0,0,0,26)
+    slider.BackgroundColor3 = Color3.fromRGB(220,220,220)
+    slider.Text = ""
+    slider.Parent = frame
+    Instance.new("UICorner", slider).CornerRadius = UDim.new(0,10)
+
+    local knob = Instance.new("Frame")
+    knob.Size = UDim2.new(0,20,1,0)
+    knob.Position = UDim2.new((default-min)/(max-min),0,0,0)
+    knob.BackgroundColor3 = Color3.fromRGB(100,200,100)
+    knob.Parent = slider
+    Instance.new("UICorner", knob).CornerRadius = UDim.new(1,0)
+
+    local dragging = false
+    knob.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(input)
+        dragging = false
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local relative = math.clamp((input.Position.X - slider.AbsolutePosition.X)/slider.AbsoluteSize.X,0,1)
+            knob.Position = UDim2.new(relative,0,0,0)
+            local value = math.floor(min + (max-min)*relative)
+            label.Text = "Value: "..value
+            if callback then callback(value) end
+        end
+    end)
+end
+
 -- =====================
--- 🔹 LOGIN SESSION
+-- 🔹 Login Session
 -- =====================
 local isLoggedIn = false
-
 openButton.MouseButton1Click:Connect(function()
     if isLoggedIn then
         mainFrame.Visible = not mainFrame.Visible
@@ -334,48 +373,35 @@ loginBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Tombol Get Key
-getKeyBtn.MouseButton1Click:Connect(function()
-    setclipboard(KEY_URL)
-    game:GetService("StarterGui"):SetCore("SendNotification",{
-        Title="Kimaq Modz",
-        Text="Key link #1 copied!",
-        Duration=5
-    })
-end)
-
+-- Tombol Get Key #2 tetap dari Pastebin
 getKeyBtn2.MouseButton1Click:Connect(function()
     setclipboard(KEY_URL2)
     game:GetService("StarterGui"):SetCore("SendNotification",{
         Title="Kimaq Modz",
-        Text="Key link #2 copied!",
+        Text="Pastebin Key link copied!",
         Duration=5
     })
 end)
 
 -- =====================
--- 🔹 Fly Logic + Joystick Call
+-- 🔹 Fly Logic + Joystick
 -- =====================
-local UIS = game:GetService("UserInputService")
-local Camera = workspace.CurrentCamera
 local flyEnabled = false
 local flySpeed = 50
-
 local bodyVelocity = Instance.new("BodyVelocity")
 bodyVelocity.MaxForce = Vector3.new(1e5,1e5,1e5)
-
 local bodyGyro = Instance.new("BodyGyro")
 bodyGyro.MaxTorque = Vector3.new(1e5,1e5,1e5)
-
 local humanoid
-local joystickGui -- simpan reference biar bisa dihapus
+local joystickGui
 
 local function loadJoystick()
+    if joystickGui then return end -- Cegah duplikasi
     local success, result = pcall(function()
         return loadstring(game:HttpGet("https://raw.githubusercontent.com/Mrkimaq/roblox-/refs/heads/main/joystick.lua"))()
     end)
     if success and result then
-        joystickGui = result -- biasanya return GUI atau function
+        joystickGui = result
     else
         warn("❌ Joystick gagal dimuat:", result)
     end
@@ -404,40 +430,39 @@ local function stopFlying()
     bodyVelocity.Parent = nil
     bodyGyro.Parent = nil
     if humanoid then humanoid.PlatformStand = false end
-    removeJoystick()
+    removeJoystick() -- Hilangkan joystick ketika toggle OFF
 end
 
--- Gerakan kamera arah
 RunService.RenderStepped:Connect(function()
     if flyEnabled and hrp then
         local dir = Vector3.zero
-        local camCF = Camera.CFrame
-        if UIS:IsKeyDown(Enum.KeyCode.W) then dir += camCF.LookVector end
-        if UIS:IsKeyDown(Enum.KeyCode.S) then dir -= camCF.LookVector end
-        if UIS:IsKeyDown(Enum.KeyCode.A) then dir -= camCF.RightVector end
-        if UIS:IsKeyDown(Enum.KeyCode.D) then dir += camCF.RightVector end
-        if UIS:IsKeyDown(Enum.KeyCode.E) then dir += Vector3.yAxis end
-        if UIS:IsKeyDown(Enum.KeyCode.Q) then dir -= Vector3.yAxis end
+        local camCF = workspace.CurrentCamera.CFrame
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then dir += camCF.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then dir -= camCF.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then dir -= camCF.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then dir += camCF.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.E) then dir += Vector3.yAxis end
+        if UserInputService:IsKeyDown(Enum.KeyCode.Q) then dir -= Vector3.yAxis end
         if dir.Magnitude > 0 then dir = dir.Unit end
         bodyVelocity.Velocity = dir * flySpeed
         bodyGyro.CFrame = camCF
     end
 end)
 
--- 🔹 Toggle untuk Fly di tab Visual
+-- Toggle Fly
 createToggle(pages["Visual"], "Fly", function(state)
     if state then
         startFlying()
     else
-        stopFlying()
+        stopFlying() -- otomatis hilang joystick ketika OFF
     end
 end)
+
 
 -- =====================
 -- 🔹 Invisible Logic
 -- =====================
 local invis_on = false
-
 local function setTransparency(character, transparency)
     for _, part in pairs(character:GetDescendants()) do
         if part:IsA("BasePart") or part:IsA("Decal") then
@@ -445,139 +470,76 @@ local function setTransparency(character, transparency)
         end
     end
 end
-
 local function startInvisibility()
     invis_on = true
     if not player.Character then return end
-
-    local savedpos = player.Character.HumanoidRootPart.CFrame
-    task.wait()
-    player.Character:MoveTo(Vector3.new(-25.95, 84, 3537.55))
-    task.wait(0.15)
-
-    local Seat = Instance.new("Seat", workspace)
-    Seat.Anchored = false
-    Seat.CanCollide = false
-    Seat.Name = "invischair"
-    Seat.Transparency = 1
-    Seat.Position = Vector3.new(-25.95, 84, 3537.55)
-
-    local Weld = Instance.new("Weld", Seat)
-    Weld.Part0 = Seat
-    Weld.Part1 = player.Character:FindFirstChild("Torso") or player.Character:FindFirstChild("UpperTorso")
-
-    task.wait()
-    Seat.CFrame = savedpos
     setTransparency(player.Character, 0.5)
-
-    game.StarterGui:SetCore("SendNotification", {
-        Title = "Invis (ON)",
-        Duration = 3,
-        Text = "STATUS:"
-    })
+    game.StarterGui:SetCore("SendNotification",{Title="Invis (ON)",Text="STATUS:",Duration=3})
 end
-
 local function stopInvisibility()
     invis_on = false
-    local invisChair = workspace:FindFirstChild("invischair")
-    if invisChair then invisChair:Destroy() end
-    if player.Character then
-        setTransparency(player.Character, 0)
-    end
-    game.StarterGui:SetCore("SendNotification", {
-        Title = "Invis (OFF)",
-        Duration = 3,
-        Text = "STATUS:"
-    })
+    if player.Character then setTransparency(player.Character,0) end
+    game.StarterGui:SetCore("SendNotification",{Title="Invis (OFF)",Text="STATUS:",Duration=3})
 end
-
--- 🔹 Toggle untuk Invisible di tab Visual
 createToggle(pages["Visual"], "Invisible", function(state)
-    if state then
-        startInvisibility()
-    else
-        stopInvisibility()
-    end
+    if state then startInvisibility() else stopInvisibility() end
 end)
 
-
---- =====================
+-- =====================
 -- 🔹 Walhack (Noclip)
 -- =====================
 local walhackEnabled = false
-
 RunService.Stepped:Connect(function()
     if walhackEnabled and player.Character then
         for _, part in pairs(player.Character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = false
-            end
-        end
-    end
-end)
-
--- =====================
--- 🔹 Walhack (Noclip terbatas)
--- =====================
-local walhackEnabled = false
-
-RunService.Stepped:Connect(function()
-    if walhackEnabled and player.Character then
-        for _, part in pairs(player.Character:GetDescendants()) do
-            if part:IsA("BasePart") and part.CanCollide then
-                part.CanCollide = false
-            end
+            if part:IsA("BasePart") then part.CanCollide = false end
         end
     elseif player.Character then
         for _, part in pairs(player.Character:GetDescendants()) do
-            if part:IsA("BasePart") and not part.CanCollide then
-                part.CanCollide = true
-            end
+            if part:IsA("BasePart") then part.CanCollide = true end
         end
     end
 end)
-
-createToggle(pages["Visual"], "Walhack", function(state)
-    walhackEnabled = state
-    print(state and "✅ Walhack ON" or "❌ Walhack OFF")
-end)
-
-
+createToggle(pages["Visual"], "Walhack", function(state) walhackEnabled = state end)
 
 -- =====================
--- 🔹 Teleport Logic
+-- 🔹 Speed Hack
 -- =====================
-local teleportEnabled = false
-
-local function startTeleport()
-    teleportEnabled = true
-    print("✅ Teleport Mode ON")
-    -- nanti bisa isi logika teleport otomatis di sini
-end
-
-local function stopTeleport()
-    teleportEnabled = false
-    print("❌ Teleport Mode OFF")
-    -- matikan / reset logika teleport di sini
-end
-
--- 🔹 Toggle untuk Teleport di tab Teleport
-createToggle(pages["Teleport"], "Teleport", function(state)
-    if state then
-        startTeleport()
-    else
-        stopTeleport()
+local speedHackEnabled = false
+local normalSpeed = 16
+local speedValue = 16
+local function updateWalkSpeed()
+    local char = player.Character
+    if char then
+        local humanoid = char:FindFirstChildWhichIsA("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = speedHackEnabled and speedValue or normalSpeed
+            flySpeed = speedValue
+        end
     end
-end)
+end
+createToggle(pages["Visual"], "Speed Hack", function(state) speedHackEnabled = state updateWalkSpeed() end)
+createSlider(pages["Visual"],16,100,speedValue,function(val) speedValue=val updateWalkSpeed() end)
 
-
--- Respawn Handler
 player.CharacterAdded:Connect(function(char)
     task.wait(0.5)
-    hrp = char:WaitForChild("HumanoidRootPart")
+    updateWalkSpeed()
 end)
 
--- Tombol Close di MainFrame
-closeBtn.MouseButton1Click:Connect(function()
-    mainFrame.Visible = false
+-- =====================
+-- 🔹 Teleport Toggle
+-- =====================
+local teleportEnabled = false
+local function startTeleport() teleportEnabled = true print("✅ Teleport Mode ON") end
+local function stopTeleport() teleportEnabled = false print("❌ Teleport Mode OFF") end
+createToggle(pages["Teleport"], "TELEPORT BASECAMP", function(state) 
+    if state then startTeleport() else stopTeleport() end
 end)
+createToggle(pages["Teleport"], "TELEPORT PUNCAK", function(state) 
+    if state then startTeleport() else stopTeleport() end
+end)
+
+-- =====================
+-- 🔹 Close Main Frame
+-- =====================
+closeBtn.MouseButton1Click:Connect(function() mainFrame.Visible = false end)
