@@ -61,8 +61,8 @@ end)
 -- 🔹 LOGIN FRAME
 -- =====================
 local loginFrame = Instance.new("Frame")
-loginFrame.Size = UDim2.new(0,350,0,220)
-loginFrame.Position = UDim2.new(0.5,-175,0.5,-110)
+loginFrame.Size = UDim2.new(0,350,0,180)
+loginFrame.Position = UDim2.new(0.5,-175,0.5,-90)
 loginFrame.BackgroundColor3 = Color3.fromRGB(255,255,255)
 loginFrame.Visible = false
 loginFrame.Parent = gui
@@ -105,22 +105,11 @@ loginBtn.BackgroundColor3 = Color3.fromRGB(70,140,255)
 loginBtn.Parent = loginFrame
 Instance.new("UICorner", loginBtn).CornerRadius = UDim.new(0,10)
 
--- 🔹 Dua tombol Get Key
-local getKeyBtn = Instance.new("TextButton")
-getKeyBtn.Size = UDim2.new(0.4,0,0,30)
-getKeyBtn.Position = UDim2.new(0.05,0,0.85,0)
-getKeyBtn.Text = "Get Key #1"
-getKeyBtn.Font = Enum.Font.Gotham
-getKeyBtn.TextSize = 14
-getKeyBtn.TextColor3 = Color3.fromRGB(255,255,255)
-getKeyBtn.BackgroundColor3 = Color3.fromRGB(120,200,100)
-getKeyBtn.Parent = loginFrame
-Instance.new("UICorner", getKeyBtn).CornerRadius = UDim.new(0,10)
-
+-- 🔹 Tombol Get Key #2 (Pastebin)
 local getKeyBtn2 = Instance.new("TextButton")
-getKeyBtn2.Size = UDim2.new(0.4,0,0,30)
-getKeyBtn2.Position = UDim2.new(0.55,0,0.85,0)
-getKeyBtn2.Text = "Get Key #2"
+getKeyBtn2.Size = UDim2.new(0.6,0,0,30)
+getKeyBtn2.Position = UDim2.new(0.2,0,0.85,0)
+getKeyBtn2.Text = "Get Key"
 getKeyBtn2.Font = Enum.Font.Gotham
 getKeyBtn2.TextSize = 14
 getKeyBtn2.TextColor3 = Color3.fromRGB(255,255,255)
@@ -129,8 +118,8 @@ getKeyBtn2.Parent = loginFrame
 Instance.new("UICorner", getKeyBtn2).CornerRadius = UDim.new(0,10)
 
 -- 🔹 URL Keys
-local KEY_URL = "https://raw.githubusercontent.com/Mrkimaq/roblox-/refs/heads/main/pasword.txt"
-local KEY_URL2 = "https://pastebin.com/raw/yourbackupkey"
+local KEY_URL = "https://raw.githubusercontent.com/Mrkimaq/roblox-/refs/heads/main/pasword.txt" -- GitHub key
+local KEY_URL2 = "https://pastebin.com/raw/yourbackupkey" -- Pastebin key
 
 -- =====================
 -- 🔹 MAIN MENU (Sidebar + Pages)
@@ -384,27 +373,18 @@ loginBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Tombol Get Key
-getKeyBtn.MouseButton1Click:Connect(function()
-    setclipboard(KEY_URL)
-    game:GetService("StarterGui"):SetCore("SendNotification",{
-        Title="Kimaq Modz",
-        Text="Key link #1 copied!",
-        Duration=5
-    })
-end)
-
+-- Tombol Get Key #2 tetap dari Pastebin
 getKeyBtn2.MouseButton1Click:Connect(function()
     setclipboard(KEY_URL2)
     game:GetService("StarterGui"):SetCore("SendNotification",{
         Title="Kimaq Modz",
-        Text="Key link #2 copied!",
+        Text="Pastebin Key link copied!",
         Duration=5
     })
 end)
 
 -- =====================
--- 🔹 Fly Logic
+-- 🔹 Fly Logic + Joystick
 -- =====================
 local flyEnabled = false
 local flySpeed = 50
@@ -416,6 +396,7 @@ local humanoid
 local joystickGui
 
 local function loadJoystick()
+    if joystickGui then return end -- Cegah duplikasi
     local success, result = pcall(function()
         return loadstring(game:HttpGet("https://raw.githubusercontent.com/Mrkimaq/roblox-/refs/heads/main/joystick.lua"))()
     end)
@@ -449,7 +430,7 @@ local function stopFlying()
     bodyVelocity.Parent = nil
     bodyGyro.Parent = nil
     if humanoid then humanoid.PlatformStand = false end
-    removeJoystick()
+    removeJoystick() -- Hilangkan joystick ketika toggle OFF
 end
 
 RunService.RenderStepped:Connect(function()
@@ -468,9 +449,15 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
+-- Toggle Fly
 createToggle(pages["Visual"], "Fly", function(state)
-    if state then startFlying() else stopFlying() end
+    if state then
+        startFlying()
+    else
+        stopFlying() -- otomatis hilang joystick ketika OFF
+    end
 end)
+
 
 -- =====================
 -- 🔹 Invisible Logic
@@ -515,8 +502,6 @@ RunService.Stepped:Connect(function()
 end)
 createToggle(pages["Visual"], "Walhack", function(state) walhackEnabled = state end)
 
-
-
 -- =====================
 -- 🔹 Speed Hack
 -- =====================
@@ -529,7 +514,7 @@ local function updateWalkSpeed()
         local humanoid = char:FindFirstChildWhichIsA("Humanoid")
         if humanoid then
             humanoid.WalkSpeed = speedHackEnabled and speedValue or normalSpeed
-            flySpeed = speedValue -- Fly speed ikut slider juga
+            flySpeed = speedValue
         end
     end
 end
@@ -550,13 +535,6 @@ local function stopTeleport() teleportEnabled = false print("❌ Teleport Mode O
 createToggle(pages["Teleport"], "TELEPORT BASECAMP", function(state) 
     if state then startTeleport() else stopTeleport() end
 end)
-
--- =====================
--- 🔹 Teleport Toggle
--- =====================
-local teleportEnabled = false
-local function startTeleport() teleportEnabled = true print("✅ Teleport Mode ON") end
-local function stopTeleport() teleportEnabled = false print("❌ Teleport Mode OFF") end
 createToggle(pages["Teleport"], "TELEPORT PUNCAK", function(state) 
     if state then startTeleport() else stopTeleport() end
 end)
